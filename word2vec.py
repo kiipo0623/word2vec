@@ -164,6 +164,42 @@ class CBOW:
         self.in_layer0.backward(da)
         return None
 
+class SkipGram:
+    def __init__(self, vocab_size, hidden_size):
+        V, H = vocab_size, hidden_size
+
+        W_in = 0.01 * np.random.randn(V, H).astype('f') #64비트 계산 대신 32비트 계산
+        W_out = 0.01 * np.random.randn(H, V).astype('f')
+
+        self.in_layer = MatMul(W_in)
+        self.out_layer = MatMul(W_out)
+        #out layer가 아니라 loss layer가 두개다
+        self.loss_layer1 = SoftmaxWithLoss()
+        self.loss_layer2 = SoftmaxWithLoss()
+
+        layers = [self.in_layer, self.out_layer]
+        self.params, self_grads = [], []
+        for layer in layers:
+            self.params = layer.params
+            self.grads = layer.grads
+
+        self.word_vecs = W_in
+
+    def forward(self, contexts, target):
+        h = self.in_layer.forward(target)
+        s = self.out_layer.forward(h)
+        l1 = self.loss_layer1.forward(s, contexts[:, 0])
+        l2 = self.loss_layer2.forward(s, contexts[:, 1])
+        loss = l1 + l2
+        return loss
+
+    def backward(self, dout=1):
+        dl1 = self.loss_layer1.backward(dout)
+        dl2 = self.loss_layer2.backward(dout)
+        ds = dl1 + dl2
+        dh = self.out_layer.backward(ds)
+        self.in_layer.backward(dh)
+        return None
 
 #SGD
 class SGD:
@@ -173,3 +209,28 @@ class SGD:
     def update(self, params, grads):
         for i in range(len(params)):
             params[i] -= self.lr*grads[i]
+
+class Embedding:
+    def __init__(self, W):
+        self.params = [W]
+        self.grads = [np.zeros_like(W)]
+        self.idx = None
+
+    def forward(self, idx):
+        W, = self.params
+        self.idx = idx
+        out = W[idx]
+        return out
+
+    def backward(self, dout):
+        dW, = self.grads
+        dW[...] = 0
+
+        #해당 인덱스를 더하여 중복이 있더라도 올바르게 처리
+        np.add.at(dW, self.idx, dout)
+
+        # for i, word_id in enumerate(self.idx):
+        #     dW[word_id] += dout[i]
+        #과 같은 의미
+
+        return None

@@ -37,9 +37,23 @@ print("target", target_onehot[0])
 #이 밑으로는 [문장[단어]]
 #우선 문장-단어로 하고 전체를 받는걸로 키우는 게 나을 듯..?
 
-model = CBOW(vocab_size, hidden_size=5)
+#CBOW
+# model = CBOW(vocab_size, hidden_size=5)
+# optimizer = SGD()
+# trainer = Train(model, optimizer)
+#
+# trainer.fit(context_onehot, target_onehot, max_epoch, batch_size)
+# trainer.plot()
+
+#SkipGram
+model = SkipGram(vocab_size, hidden_size=5)
 optimizer = SGD()
 trainer = Train(model, optimizer)
 
-trainer.fit(context_onehot, target_onehot, max_epoch, batch_size)
+trainer.fit(context_onehot, target_onehot, max_epoch, batch_size) #context와 target의 순서를 바꾸지 않아도 되는 이유..?
+#skipgram 함수안에서 input에 target을 넣어서 보정 해주기 때문
 trainer.plot()
+
+word_vecs = model.word_vecs
+for word_id, word in id_to_word.items():
+    print(word, word_vecs[word_id])
