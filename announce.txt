@@ -1,0 +1,34 @@
+backup, train_backup : 선희랑 같이 했던거
+sample : heapq
+speed : 속도 개선한 모델. CBOW모델이 두 개 있음
+train : train하기 좋게 나눠둔 모델
+[train2 : 속도 개선한 모델 trainer(tarin.py) 부르는 모델]
+train2를 실행하면 train의 Train class를 불러서 실행시킴.
+[word2vec : 대부분의 클래스들 다 들어 있음]
+CBOW_dev : 최대발전형 CBOW negative sampling이랑 input부분 최적화 해둔 모델
+CBOW_mini : 모드 바꾸려고 시도중인 모델
+CBOW : 기본형 모델
+[word2vec_train : 기본형]
+그냥 CBOW랑 SG 돌렸던 모델
+[ptb : 데이터 전처리해주는 모델]
+
+**당면과제
+지금 문장 별로 받아오는 게 아닌 것 같은데 문장별로 받아오도록 바꿔줘야 함. 맞을 수도 있으니까 우선 문장별로 받아오는지 확인 해야
+
+**word2vec_train과 train2의 차이
+train2에서는 ptb data를 사용하고, Preprocessing을 ptb에서 해서 가져온다
+window size가 1 -> 5로 벼뀜
+convert to onehot을 하지 않음. 어차피 Lookup하기 때문에 할 필요가 없다.
+pickle 사용 : 파이썬 코드의 객체를 파일로 저장하는데 사용
+
+**깃허브 코드 분석
+dictionary를 pkl 파일로 만들어줌(이미함)
+function/load_dict : file을 pickle로 라인바이라인 읽어옴
+
+**진행 순서
+load dictionary
+make unigram table #unigram = 하나의 연속된 단어. 한 단어를 대상으로 확률분포를 만든다 (negative sampling 하기위해)
+- word2vec.py의 UnigramSampler, NegativeSamplingLoss 참고
+- tqdm 파이썬 진행표시
+make random value to get temporary context : 이건 뭔지를 모르겠다
+
